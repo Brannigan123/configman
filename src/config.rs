@@ -28,18 +28,18 @@ pub fn load_config(path: &str) -> Result<Config, Error> {
     File::open(path)
         .map(|f| BufReader::new(f))
         .map(|br| br.lines())
-        .map(|ls| {
-            ls.map(|line| {
-                line.map(|l| -> Mapping {
-                    let splits = l.split(':').collect::<Vec<&str>>();
-                    Mapping {
-                        source: splits[0].to_string(),
-                        destination: splits[1].to_string(),
-                    }
-                })
-                .unwrap()
-            })
-            .collect::<Vec<Mapping>>()
-        })
+        .map(|ls| ls.map(|line| line.map(convert_line_to_mapping).unwrap()))
+        .map(|m| m.collect::<Vec<Mapping>>())
         .map(|m| Config { mappings: m })
+}
+
+pub fn convert_line_to_mapping(l: String) -> Mapping {
+    let splits = l.split(':').collect::<Vec<&str>>();
+    match splits.len() {
+        2 => Mapping {
+            source: splits[0].to_string(),
+            destination: splits[1].to_string(),
+        },
+        _ => panic!("Failed to parse line '{l}'.\nExpected format <source> : <destination>"),
+    }
 }
