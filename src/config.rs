@@ -2,28 +2,53 @@ use std::fmt;
 use std::fs::File;
 use std::io::{prelude::*, BufReader, Error};
 
+/// `Config` is a struct that contains a vector of `Mapping`s.
+///
+/// Properties:
+///
+/// * `mappings`: A vector of Mapping structs.
 #[derive(Debug, Clone)]
 pub struct Config {
     mappings: Vec<Mapping>,
 }
 
+/// `Mapping` is a struct that contains two strings, `source` and `destination`.
+///
+/// Properties:
+///
+/// * `source`: The source path of the file to be copied.
+/// * `destination`: The destination path of the file.
 #[derive(Debug, Clone)]
 pub struct Mapping {
     source: String,
     destination: String,
 }
 
+/// It's implementing the `Display` trait for the `Config` struct.
 impl fmt::Display for Config {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:#?}", self.mappings)
     }
 }
+
+/// It's implementing the `Display` trait for the `Mapping` struct.
 impl fmt::Display for Mapping {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{} -> {}", self.source, self.destination)
     }
 }
 
+/// We open the file, wrap it in a buffered reader, get the lines, filter out the ones we don't care
+/// about, convert the ones we do care about to mappings, and then collect them into a vector inside
+/// a Config Struct
+///
+/// Arguments:
+///
+/// * `path`: &str - The path to the config file
+///
+/// Returns:
+///
+/// A Result<Config, Error>
 pub fn load_config(path: &str) -> Result<Config, Error> {
     File::open(path)
         .map(|f| BufReader::new(f))
@@ -37,11 +62,31 @@ pub fn load_config(path: &str) -> Result<Config, Error> {
         .map(|m| Config { mappings: m })
 }
 
-fn considered_mapping(l: &String) -> bool {
+/// If the line is empty or starts with a hash, it's not a mapping
+///
+/// Arguments:
+///
+/// * `l`: &String - the line to be considered
+///
+/// Returns:
+///
+/// A boolean value.
+pub fn considered_mapping(l: &String) -> bool {
     let tl = l.trim();
     !(tl.is_empty() || tl.starts_with('#'))
 }
 
+/// It takes a string, splits it on the colon, and returns a Mapping struct
+/// If resulting splits are 2, 1st is considered the source and the other a
+/// destination. All other cases are considered illegal.
+/// 
+/// Arguments:
+/// 
+/// * `l`: The line to convert
+/// 
+/// Returns:
+/// 
+/// A vector of Mapping structs
 pub fn convert_line_to_mapping(l: String) -> Mapping {
     let splits = l.split(':').collect::<Vec<&str>>();
     match splits.len() {
