@@ -28,9 +28,18 @@ pub fn load_config(path: &str) -> Result<Config, Error> {
     File::open(path)
         .map(|f| BufReader::new(f))
         .map(|br| br.lines())
-        .map(|ls| ls.map(|line| line.map(convert_line_to_mapping).unwrap()))
+        .map(|ls| {
+            ls.map(|l| l.unwrap())
+                .filter(considered_mapping)
+                .map(convert_line_to_mapping)
+        })
         .map(|m| m.collect::<Vec<Mapping>>())
         .map(|m| Config { mappings: m })
+}
+
+fn considered_mapping(l: &String) -> bool {
+    let tl = l.trim();
+    !(tl.is_empty() || tl.starts_with('#'))
 }
 
 pub fn convert_line_to_mapping(l: String) -> Mapping {
