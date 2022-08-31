@@ -1,6 +1,7 @@
 use crate::config::SAMPLE_CONFIG_CONTENT;
 use crate::fs::get_working_dir;
 
+use git2::Repository;
 use std::fs;
 
 /// It checks if a configuration file exists in the current working directory, and if it doesn't, it
@@ -16,4 +17,9 @@ pub fn init_working_dir() {
         }
     }
     println!("Using config file: {:?}", &config_path);
+}
+
+pub fn ensure_is_git_working_dir() -> Repository {
+    let wd = get_working_dir().expect("Failed to get current working directory.");
+    Repository::init(wd).expect("Failed to initialize git repo")
 }
