@@ -23,3 +23,8 @@ pub fn ensure_is_git_working_dir() -> Repository {
     let wd = get_working_dir();
     Repository::init(wd).expect("Failed to initialize git repo")
 }
+
+pub fn clone_from_remote(url: &str) -> Repository {
+    let wd = get_working_dir();
+    Repository::clone(url, wd).expect("Failed to clone repo")
+}
