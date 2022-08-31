@@ -79,20 +79,20 @@ pub fn considered_mapping(l: &String) -> bool {
 /// It takes a string, splits it on the colon, and returns a Mapping struct
 /// If resulting splits are 2, 1st is considered the source and the other a
 /// destination. All other cases are considered illegal.
-/// 
+///
 /// Arguments:
-/// 
+///
 /// * `l`: The line to convert
-/// 
+///
 /// Returns:
-/// 
+///
 /// A vector of Mapping structs
 pub fn convert_line_to_mapping(l: String) -> Mapping {
     let splits = l.split(':').collect::<Vec<&str>>();
     match splits.len() {
         2 => Mapping {
-            source: splits[0].to_string(),
-            destination: splits[1].to_string(),
+            source: splits[0].trim().to_string(),
+            destination: splits[1].trim().to_string(),
         },
         _ => panic!("Failed to parse line '{l}'.\nExpected format <source> : <destination>"),
     }
