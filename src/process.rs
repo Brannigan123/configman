@@ -7,7 +7,7 @@ use std::fs;
 /// It checks if a configuration file exists in the current working directory, and if it doesn't, it
 /// creates one
 pub fn init_working_dir() {
-    let wd = get_working_dir().expect("Failed to get current working directory.");
+    let wd = get_working_dir();
     let config_path = wd.join("config.cmf");
     if !&config_path.exists() {
         println!("No configuration file found in current working directory.");
@@ -20,6 +20,6 @@ pub fn init_working_dir() {
 }
 
 pub fn ensure_is_git_working_dir() -> Repository {
-    let wd = get_working_dir().expect("Failed to get current working directory.");
+    let wd = get_working_dir();
     Repository::init(wd).expect("Failed to initialize git repo")
 }
