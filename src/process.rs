@@ -3,6 +3,8 @@ use crate::fs::get_working_dir;
 
 use std::fs;
 
+/// It checks if a configuration file exists in the current working directory, and if it doesn't, it
+/// creates one
 pub fn init_working_dir() {
     let wd = get_working_dir().expect("Failed to get current working directory.");
     let config_path = wd.join("config.cmf");
