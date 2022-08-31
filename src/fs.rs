@@ -1,7 +1,4 @@
-use std::path::PathBuf;
-
-use glob::glob_with;
-use glob::MatchOptions;
+use capturing_glob::{glob_with, Entry, MatchOptions, PatternError};
 
 const OPTIONS: MatchOptions = MatchOptions {
     case_sensitive: false,
@@ -9,8 +6,6 @@ const OPTIONS: MatchOptions = MatchOptions {
     require_literal_leading_dot: false,
 };
 
-pub fn get_matching_files(pattern: &str) -> Result<Vec<PathBuf>, glob::PatternError> {
-    glob_with(pattern, OPTIONS).map(|ps| ps.map(|p| p.unwrap()).collect::<Vec<PathBuf>>())
+pub fn get_matching_files(pattern: &str) -> Result<Vec<Entry>, PatternError> {
+    glob_with(pattern, &OPTIONS).map(|ps| ps.map(|p| p.unwrap()).collect::<Vec<Entry>>())
 }
-
-
