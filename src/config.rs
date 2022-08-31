@@ -97,3 +97,27 @@ pub fn convert_line_to_mapping(l: String) -> Mapping {
         _ => panic!("Failed to parse line '{l}'.\nExpected format <source> : <destination>"),
     }
 }
+
+pub const SAMPLE_CONFIG_CONTENT: &str = "
+# This is a sample config file
+# The configuration file supports Unix shell style patterns when matching files
+
+# This mapping tracks the files in .mplayer directory and
+# maps them to mplayer directory the under current working directory
+# the brackets are used to capture groups of matched path which can
+# be referenced on definition path as (<group position>),
+# e.g (1) for this case corresponds to the first matched part in ()
+/home/nomen/.mplayer/(*) : mplayer/(1)
+
+# example
+# ~/.config/neofetch/config.conf -> config/neofetch/config.conf
+~/.config/(**) : config/(1)
+
+# example
+# ~/.config/polybar/launch.sh -> sh/polybar/launch.sh
+~/.config/(*)/(*.sh) : sh/(1)/(2)I
+
+# ~/.config/neofetch/images/arch.png -> 
+~/.config/(*)/**/(*.png) : (1)/pngs/(2) -> neofetch/pngs/arch.png
+
+";
