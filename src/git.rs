@@ -27,3 +27,7 @@ pub fn is_git_repo_root_dir() -> bool {
         )
         .expect("Failed to determine if current directory is a git repo")
 }
+
+pub fn index_file(path: &str) {
+    exec_git(vec!["add", &path, "-s"]).expect(format!("{}", &path).as_str());
+}
