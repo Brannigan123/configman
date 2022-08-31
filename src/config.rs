@@ -115,7 +115,7 @@ pub const SAMPLE_CONFIG_CONTENT: &str = "
 
 # example
 # ~/.config/polybar/launch.sh -> sh/polybar/launch.sh
-~/.config/(*)/(*.sh) : sh/(1)/(2)I
+~/.config/(*)/(*.sh) : sh/(1)/(2)
 
 # ~/.config/neofetch/images/arch.png -> 
 ~/.config/(*)/**/(*.png) : (1)/pngs/(2) -> neofetch/pngs/arch.png
