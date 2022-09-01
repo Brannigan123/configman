@@ -52,3 +52,27 @@ pub fn is_git_repo_root_dir() -> bool {
 pub fn index_file(path: &str) {
     exec_git(vec!["add", &path, "-s"]).expect(format!("{}", &path).as_str());
 }
+
+pub fn get_file_status(path: &str) -> Result<GitFileStatus, Error> {
+    exec_git(vec!["status", "-s", &path]).map(|output| {
+        match std::str::from_utf8(&output.stdout)
+            .unwrap()
+            .trim()
+            .split_whitespace()
+            .nth(0)
+            .unwrap()
+        {
+            "" => GitFileStatus::Unmodified,
+            "M" => GitFileStatus::Modified,
+            "T" => GitFileStatus::TypeChanged,
+            "A" => GitFileStatus::Added,
+            "D" => GitFileStatus::Deleted,
+            "R" => GitFileStatus::Renamed,
+            "C" => GitFileStatus::Copied,
+            "U" => GitFileStatus::Updated,
+            "??" => GitFileStatus::Untracked,
+            "!" => GitFileStatus::Ignored,
+            other => panic!("{} not recognized as git status", other),
+        }
+    })
+}
