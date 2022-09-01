@@ -20,7 +20,7 @@ impl GitFileStatus {
     /// Returns:
     ///
     /// A boolean value.
-    pub const fn is_modified(self) -> bool {
+    pub const fn is_modified(&self) -> bool {
         self.working_tree_status == 'M'
     }
 
@@ -29,7 +29,7 @@ impl GitFileStatus {
     /// Returns:
     ///
     /// A boolean value.
-    pub const fn is_staged(self) -> bool {
+    pub const fn is_staged(&self) -> bool {
         self.index_status == 'M'
     }
 
@@ -38,7 +38,7 @@ impl GitFileStatus {
     /// Returns:
     ///
     /// A boolean value.
-    pub const fn is_upto_date(self) -> bool {
+    pub const fn is_upto_date(&self) -> bool {
         self.index_status == ' ' && self.working_tree_status == ' '
     }
 
@@ -47,7 +47,7 @@ impl GitFileStatus {
     /// Returns:
     ///
     /// A boolean value.
-    pub const fn is_untracked(self) -> bool {
+    pub const fn is_untracked(&self) -> bool {
         self.index_status == '?' && self.working_tree_status == '?'
     }
 
@@ -56,7 +56,7 @@ impl GitFileStatus {
     /// Returns:
     ///
     /// A boolean value.
-    pub const fn is_ignored(self) -> bool {
+    pub const fn is_ignored(&self) -> bool {
         self.index_status == '!' && self.working_tree_status == '!'
     }
 }
