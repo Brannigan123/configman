@@ -123,9 +123,9 @@ pub fn get_file_status(path: &str) -> Result<GitFileStatus, Error> {
 }
 
 /// It runs `git status -s` and returns true if any of the lines start with `M`
-/// 
+///
 /// Returns:
-/// 
+///
 /// A boolean value.
 pub fn is_any_file_staged() -> bool {
     exec_git(vec!["status", "-s"])
@@ -139,6 +139,10 @@ pub fn is_any_file_staged() -> bool {
 }
 
 pub fn commit_staged_files(message: &str) {
-    exec_git(vec!["commit", "-m", &message])
-        .expect(format!("Failed to commit: {}", &message).as_str());
+    if is_any_file_staged() {
+        exec_git(vec!["commit", "-m", &message])
+            .expect(format!("Failed to commit: {}", &message).as_str());
+    } else {
+        println!("There are no staged files. Commit has been aborted.");
+    }
 }
