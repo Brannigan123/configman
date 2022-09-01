@@ -85,3 +85,8 @@ pub fn get_file_status(path: &str) -> Result<GitFileStatus, Error> {
         }
     })
 }
+
+pub fn commit_staged_files(message: &str) {
+    exec_git(vec!["commit", "-m", &message])
+        .expect(format!("Failed to commit: {}", &message).as_str());
+}
