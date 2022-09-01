@@ -138,6 +138,11 @@ pub fn is_any_file_staged() -> bool {
         .expect("Failed to determine if files have been staged")
 }
 
+/// It commits all staged files with the given message
+/// 
+/// Arguments:
+/// 
+/// * `message`: &str
 pub fn commit_staged_files(message: &str) {
     if is_any_file_staged() {
         exec_git(vec!["commit", "-m", &message])
