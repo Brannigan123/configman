@@ -15,22 +15,22 @@ pub struct GitFileStatus {
 }
 
 impl GitFileStatus {
-    /// `is_modified` returns true if the index status is unmodified and the working tree status is modified
+    /// `is_modified` returns true if the working tree status is modified is `M`
     ///
     /// Returns:
     ///
     /// A boolean value.
     pub const fn is_modified(self) -> bool {
-        self.index_status == ' ' && self.working_tree_status == 'M'
+        self.working_tree_status == 'M'
     }
 
-    /// `is_staged` returns true if the index status is `M` and the working tree status is ` `
+    /// `is_staged` returns true if the index status is `M`
     ///
     /// Returns:
     ///
     /// A boolean value.
     pub const fn is_staged(self) -> bool {
-        self.index_status == 'M' && self.working_tree_status == ' '
+        self.index_status == 'M'
     }
 
     /// `is_upto_date` returns true if the index and working tree are both up to date
