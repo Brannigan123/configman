@@ -1,18 +1,17 @@
 use std::io::Error;
 use std::process::{Command, Output};
 
+/// `GitFileStatus` is a struct with two fields, `IndexStatus` and `WorkingTreeStatus`, both of which
+/// are `char`s.
+///
+/// Properties:
+///
+/// * `IndexStatus`: The status of the file in the index.
+/// * `WorkingTreeStatus`: The status of the file in the working tree.
 #[derive(Debug)]
-pub enum GitFileStatus {
-    Unmodified,
-    Modified,
-    TypeChanged,
-    Added,
-    Deleted,
-    Renamed,
-    Copied,
-    Unmerged,
-    Untracked,
-    Ignored,
+pub struct GitFileStatus {
+    pub IndexStatus: char,
+    pub WorkingTreeStatus: char,
 }
 
 /// `exec_git` takes a vector of strings and returns a `Result` of `Output` or `Error`
@@ -64,26 +63,30 @@ pub fn index_file(path: &str) {
 /// A Result<GitFileStatus, Error>
 pub fn get_file_status(path: &str) -> Result<GitFileStatus, Error> {
     exec_git(vec!["status", "-s", &path]).map(|output| {
-        match std::str::from_utf8(&output.stdout)
+        let status = std::str::from_utf8(&output.stdout)
             .unwrap()
-            .trim()
             .split_whitespace()
             .nth(0)
-            .unwrap_or("!")
-        {
-            "" => GitFileStatus::Unmodified,
-            "M" => GitFileStatus::Modified,
-            "T" => GitFileStatus::TypeChanged,
-            "A" => GitFileStatus::Added,
-            "D" => GitFileStatus::Deleted,
-            "R" => GitFileStatus::Renamed,
-            "C" => GitFileStatus::Copied,
-            "U" => GitFileStatus::Unmerged,
-            "??" => GitFileStatus::Untracked,
-            "!" => GitFileStatus::Ignored,
-            other => panic!("{} not recognized as git status", other),
+            .unwrap_or("!!")
+            .chars()
+            .collect::<Vec<char>>();
+        GitFileStatus {
+            IndexStatus: status[0],
+            WorkingTreeStatus: status[1],
         }
     })
+}
+
+pub fn is_any_file_staged() -> bool {
+    exec_git(vec!["diff", "--cached", "--quiet"])
+        .map(
+            |output| match std::str::from_utf8(&output.stdout).unwrap().trim() {
+                "yes" => true,
+                "no" => false,
+                other => panic!("Failed to understand output from git: {}", other),
+            },
+        )
+        .expect("Failed to determine if files have been staged")
 }
 
 pub fn commit_staged_files(message: &str) {
