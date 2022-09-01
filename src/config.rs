@@ -111,13 +111,13 @@ pub const SAMPLE_CONFIG_CONTENT: &str = "
 
 # example
 # ~/.config/neofetch/config.conf -> config/neofetch/config.conf
-~/.config/(**) : config/(1)
+/home/nomen/.config/(**) : config/(1)
 
 # example
-# ~/.config/polybar/launch.sh -> sh/polybar/launch.sh
-~/.config/(*)/(*.sh) : sh/(1)/(2)
+# /home/nomen/.config/polybar/launch.sh -> sh/polybar/launch.sh
+/home/nomen/.config/(*)/(*.sh) : sh/(1)/(2)
 
-# ~/.config/neofetch/images/arch.png -> 
-~/.config/(*)/**/(*.png) : (1)/pngs/(2) -> neofetch/pngs/arch.png
+# /home/nomen/.config/neofetch/images/arch.png -> neofetch/pngs/arch.png
+/home/nomen/.config/(*)/**/(*.png) : (1)/pngs/(2) 
 
 ";
