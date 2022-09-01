@@ -111,7 +111,7 @@ pub const SAMPLE_CONFIG_CONTENT: &str = "
 
 # example
 # /home/nomen/.config/neofetch/config.conf -> config/neofetch/config.conf
-/home/nomen/.config/(**) : config/(1)
+/home/nomen/.config/(**/*) : config/(1)
 
 # example
 # /home/nomen/.config/polybar/launch.sh -> sh/polybar/launch.sh
