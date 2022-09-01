@@ -107,19 +107,21 @@ pub fn add_file(path: &str) {
 ///
 /// Returns:
 ///
-/// A Result<GitFileStatus, Error>
-pub fn get_file_status(path: &str) -> Result<GitFileStatus, Error> {
-    exec_git(vec!["status", "-s", &path]).map(|output| {
-        let status = std::str::from_utf8(&output.stdout)
-            .map(|s| if s.is_empty() { "  " } else { s })
-            .unwrap()
-            .chars()
-            .collect::<Vec<char>>();
-        GitFileStatus {
-            index_status: status[0],
-            working_tree_status: status[1],
-        }
-    })
+/// GitFileStatus
+pub fn get_file_status(path: &str) -> GitFileStatus {
+    exec_git(vec!["status", "-s", &path])
+        .map(|output| {
+            let status = std::str::from_utf8(&output.stdout)
+                .map(|s| if s.is_empty() { "  " } else { s })
+                .unwrap()
+                .chars()
+                .collect::<Vec<char>>();
+            GitFileStatus {
+                index_status: status[0],
+                working_tree_status: status[1],
+            }
+        })
+        .expect(format!("Failed to get git status: {}", path).as_str())
 }
 
 /// It runs `git status -s` and returns true if any of the lines start with `M`
@@ -139,9 +141,9 @@ pub fn is_any_file_staged() -> bool {
 }
 
 /// It commits all staged files with the given message
-/// 
+///
 /// Arguments:
-/// 
+///
 /// * `message`: &str
 pub fn commit_staged_files(message: &str) {
     if is_any_file_staged() {
