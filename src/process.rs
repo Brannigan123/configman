@@ -1,11 +1,11 @@
 use capturing_glob::Entry;
+use std::fs;
 
 use crate::config::Config;
 use crate::config::Mapping;
 use crate::config::SAMPLE_CONFIG_CONTENT;
 use crate::fs::{get_matching_files, get_working_dir};
 use crate::git::{add_file, init_git, is_git_repo_root_dir};
-use std::fs;
 
 /// It checks if the current working directory has a configuration file, if not, it generates one, then
 /// it checks if the current working directory is a git repository, if not, it initializes one, then it
@@ -26,6 +26,16 @@ pub fn init_working_dir() {
     println!("Using config file: {:?}", &config_path);
 }
 
+/// It takes a `Config` and returns a `Vec<Mapping>` where each `Mapping` is a source and destination
+/// file path that have been matched by the config mappings
+///
+/// Arguments:
+///
+/// * `config`: &Config
+///
+/// Returns:
+///
+/// A vector of Mapping structs.
 pub fn get_found_mappings(config: &Config) -> Vec<Mapping> {
     let mut found_mappings = Vec::new();
     for mapping in &config.mappings {
@@ -41,6 +51,17 @@ pub fn get_found_mappings(config: &Config) -> Vec<Mapping> {
     return found_mappings;
 }
 
+/// It takes a mapping and a matched entry, and returns a string with all the group values substituted
+/// in the destination
+///
+/// Arguments:
+///
+/// * `mapping`: The mapping that we're using to transform the source string.
+/// * `matched`: The entry that matched the mapping.
+///
+/// Returns:
+///
+/// A String
 fn substitute_group_values(mapping: &Mapping, matched: &Entry) -> String {
     let mut destination = mapping.destination.clone();
     let mut group_index: usize = 1;
@@ -56,6 +77,18 @@ fn substitute_group_values(mapping: &Mapping, matched: &Entry) -> String {
     destination
 }
 
+/// It takes a destination string, a matched entry, and a position, and returns a tuple of the
+/// destination string with the group at the given position substituted in, and the next position
+///
+/// Arguments:
+///
+/// * `destination`: The destination string that we're going to replace the group values in.
+/// * `matched`: The matched entry
+/// * `position`: The position of the group in the regex.
+///
+/// Returns:
+///
+/// A tuple of the new destination and the next position to substitute.
 fn substitute_group_value(
     destination: &String,
     matched: &Entry,
