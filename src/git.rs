@@ -94,13 +94,18 @@ pub fn init_git() {
     exec_git(vec!["init"]).expect("Failed to initialize git repo here");
 }
 
-/// It adds a file to the git index
-///
+
+/// It adds a file to the index if it's not already added
+/// 
 /// Arguments:
-///
-/// * `path`: The path to the file to be indexed.
+/// 
+/// * `path`: &str
 pub fn add_file(path: &str) {
-    exec_git(vec!["add", &path, "-s"]).expect(format!("Failed to index {}", &path).as_str());
+    if get_file_status(&path).is_untracked() {
+        exec_git(vec!["add", &path, "-s"]).expect(format!("Failed to index {}", &path).as_str());
+    } else {
+        println!("{} is already added. Skipping", &path);
+    }
 }
 
 /// It runs `git status -s <path>` and parses the output
