@@ -9,7 +9,7 @@ use std::io::{prelude::*, BufReader, Error};
 /// * `mappings`: A vector of Mapping structs.
 #[derive(Debug, Clone)]
 pub struct Config {
-    mappings: Vec<Mapping>,
+    pub mappings: Vec<Mapping>,
 }
 
 /// `Mapping` is a struct that contains two strings, `source` and `destination`.
