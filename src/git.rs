@@ -90,6 +90,10 @@ pub fn is_git_repo_root_dir() -> bool {
         .expect("Failed to determine if current directory is a git repo")
 }
 
+pub fn init_git() {
+    exec_git(vec!["init"]).expect("Failed to initialize git repo here");
+}
+
 /// It adds a file to the git index
 ///
 /// Arguments:
