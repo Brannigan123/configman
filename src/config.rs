@@ -20,8 +20,8 @@ pub struct Config {
 /// * `destination`: The destination path of the file.
 #[derive(Debug, Clone)]
 pub struct Mapping {
-    source: String,
-    destination: String,
+    pub source: String,
+    pub destination: String,
 }
 
 /// It's implementing the `Display` trait for the `Config` struct.
