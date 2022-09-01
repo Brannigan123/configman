@@ -50,7 +50,7 @@ pub fn is_git_repo_root_dir() -> bool {
 ///
 /// * `path`: The path to the file to be indexed.
 pub fn index_file(path: &str) {
-    exec_git(vec!["add", &path, "-s"]).expect(format!("{}", &path).as_str());
+    exec_git(vec!["add", &path, "-s"]).expect(format!("Failed to index {}", &path).as_str());
 }
 
 /// It runs `git status -s <path>` and parses the output
