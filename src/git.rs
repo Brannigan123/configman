@@ -122,15 +122,19 @@ pub fn get_file_status(path: &str) -> Result<GitFileStatus, Error> {
     })
 }
 
+/// It runs `git status -s` and returns true if any of the lines start with `M`
+/// 
+/// Returns:
+/// 
+/// A boolean value.
 pub fn is_any_file_staged() -> bool {
-    exec_git(vec!["diff", "--cached", "--quiet"])
-        .map(
-            |output| match std::str::from_utf8(&output.stdout).unwrap().trim() {
-                "yes" => true,
-                "no" => false,
-                other => panic!("Failed to understand output from git: {}", other),
-            },
-        )
+    exec_git(vec!["status", "-s"])
+        .map(|output| {
+            std::str::from_utf8(&output.stdout)
+                .unwrap_or("")
+                .lines()
+                .any(|l| l.starts_with("M"))
+        })
         .expect("Failed to determine if files have been staged")
 }
 
