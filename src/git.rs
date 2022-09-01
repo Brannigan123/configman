@@ -1,17 +1,64 @@
 use std::io::Error;
 use std::process::{Command, Output};
 
-/// `GitFileStatus` is a struct with two fields, `IndexStatus` and `WorkingTreeStatus`, both of which
-/// are `char`s.
+/// `GitFileStatus` is a struct that contains two fields, `index_status` and `working_tree_status`, both
+/// of which are characters.
 ///
 /// Properties:
 ///
-/// * `IndexStatus`: The status of the file in the index.
-/// * `WorkingTreeStatus`: The status of the file in the working tree.
+/// * `index_status`: The status of the file in the index.
+/// * `working_tree_status`: The status of the file in the working tree.
 #[derive(Debug)]
 pub struct GitFileStatus {
-    pub IndexStatus: char,
-    pub WorkingTreeStatus: char,
+    pub index_status: char,
+    pub working_tree_status: char,
+}
+
+impl GitFileStatus {
+    /// `is_modified` returns true if the index status is unmodified and the working tree status is modified
+    ///
+    /// Returns:
+    ///
+    /// A boolean value.
+    pub const fn is_modified(self) -> bool {
+        self.index_status == ' ' && self.working_tree_status == 'M'
+    }
+
+    /// `is_staged` returns true if the index status is `M` and the working tree status is ` `
+    ///
+    /// Returns:
+    ///
+    /// A boolean value.
+    pub const fn is_staged(self) -> bool {
+        self.index_status == 'M' && self.working_tree_status == ' '
+    }
+
+    /// `is_upto_date` returns true if the index and working tree are both up to date
+    ///
+    /// Returns:
+    ///
+    /// A boolean value.
+    pub const fn is_upto_date(self) -> bool {
+        self.index_status == ' ' && self.working_tree_status == ' '
+    }
+
+    /// `is_untracked` returns true if the index status and working tree status are both `?`
+    ///
+    /// Returns:
+    ///
+    /// A boolean value.
+    pub const fn is_untracked(self) -> bool {
+        self.index_status == '?' && self.working_tree_status == '?'
+    }
+
+    /// If the index status and the working tree status are both `!`, then the file is ignored
+    ///
+    /// Returns:
+    ///
+    /// A boolean value.
+    pub const fn is_ignored(self) -> bool {
+        self.index_status == '!' && self.working_tree_status == '!'
+    }
 }
 
 /// `exec_git` takes a vector of strings and returns a `Result` of `Output` or `Error`
@@ -64,15 +111,13 @@ pub fn index_file(path: &str) {
 pub fn get_file_status(path: &str) -> Result<GitFileStatus, Error> {
     exec_git(vec!["status", "-s", &path]).map(|output| {
         let status = std::str::from_utf8(&output.stdout)
+            .map(|s| if s.is_empty() { "  " } else { s })
             .unwrap()
-            .split_whitespace()
-            .nth(0)
-            .unwrap_or("!!")
             .chars()
             .collect::<Vec<char>>();
         GitFileStatus {
-            IndexStatus: status[0],
-            WorkingTreeStatus: status[1],
+            index_status: status[0],
+            working_tree_status: status[1],
         }
     })
 }
