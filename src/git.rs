@@ -53,6 +53,15 @@ pub fn index_file(path: &str) {
     exec_git(vec!["add", &path, "-s"]).expect(format!("{}", &path).as_str());
 }
 
+/// It runs `git status -s <path>` and parses the output
+///
+/// Arguments:
+///
+/// * `path`: The path to the file you want to check the status of.
+///
+/// Returns:
+///
+/// A Result<GitFileStatus, Error>
 pub fn get_file_status(path: &str) -> Result<GitFileStatus, Error> {
     exec_git(vec!["status", "-s", &path]).map(|output| {
         match std::str::from_utf8(&output.stdout)
@@ -60,7 +69,7 @@ pub fn get_file_status(path: &str) -> Result<GitFileStatus, Error> {
             .trim()
             .split_whitespace()
             .nth(0)
-            .unwrap()
+            .unwrap_or("!")
         {
             "" => GitFileStatus::Unmodified,
             "M" => GitFileStatus::Modified,
