@@ -3,7 +3,7 @@ use std::{env, path::PathBuf};
 
 /// Setting the options for the globbing.
 const OPTIONS: MatchOptions = MatchOptions {
-    case_sensitive: false,
+    case_sensitive: true,
     require_literal_separator: false,
     require_literal_leading_dot: false,
 };
