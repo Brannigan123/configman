@@ -10,7 +10,7 @@ pub enum GitFileStatus {
     Deleted,
     Renamed,
     Copied,
-    Updated,
+    Unmerged,
     Untracked,
     Ignored,
 }
@@ -69,7 +69,7 @@ pub fn get_file_status(path: &str) -> Result<GitFileStatus, Error> {
             "D" => GitFileStatus::Deleted,
             "R" => GitFileStatus::Renamed,
             "C" => GitFileStatus::Copied,
-            "U" => GitFileStatus::Updated,
+            "U" => GitFileStatus::Unmerged,
             "??" => GitFileStatus::Untracked,
             "!" => GitFileStatus::Ignored,
             other => panic!("{} not recognized as git status", other),
