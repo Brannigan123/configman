@@ -110,7 +110,7 @@ pub const SAMPLE_CONFIG_CONTENT: &str = "
 /home/nomen/.mplayer/(*) : mplayer/(1)
 
 # example
-# ~/.config/neofetch/config.conf -> config/neofetch/config.conf
+# /home/nomen/.config/neofetch/config.conf -> config/neofetch/config.conf
 /home/nomen/.config/(**) : config/(1)
 
 # example
