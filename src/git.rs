@@ -95,7 +95,7 @@ pub fn is_git_repo_root_dir() -> bool {
 /// Arguments:
 ///
 /// * `path`: The path to the file to be indexed.
-pub fn index_file(path: &str) {
+pub fn add_file(path: &str) {
     exec_git(vec!["add", &path, "-s"]).expect(format!("Failed to index {}", &path).as_str());
 }
 
