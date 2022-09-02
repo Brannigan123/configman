@@ -27,17 +27,16 @@ pub fn init_working_dir() {
     println!("Using config file: {:?}", &config_path);
 }
 
+/// It creates the parent directory of the link if it doesn't exist, and then creates a hard link from
+/// the original file to the link
+/// 
+/// Arguments:
+/// 
+/// * `original`: The path to the original file.
+/// * `link`: The path to the link to be created.
 pub fn ensure_link_upto_date(original: &PathBuf, link: &PathBuf) {
-    match if original.is_dir() {
-        create_dir_all(link).is_ok()
-    } else {
-        File::create(link).is_ok()
-    } {
-        true => {
-            hard_link(original, link).expect(format!("Failed to link to {:?}", &original).as_str())
-        }
-        false => println!("Failed to create link file: {:?}", &link),
-    };
+    link.parent().map(|p| create_dir_all(p));
+    hard_link(original, link).expect(format!("Failed to link to {:?}", &original).as_str());
 }
 
 /// It takes a `Config` and returns a `Vec<Mapping>` where each `Mapping` is a source and destination
