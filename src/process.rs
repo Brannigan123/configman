@@ -1,5 +1,6 @@
 use capturing_glob::Entry;
-use std::fs;
+use std::fs::{create_dir_all, hard_link, File};
+use std::path::PathBuf;
 
 use crate::config::Config;
 use crate::config::Mapping;
@@ -24,6 +25,19 @@ pub fn init_working_dir() {
     }
     add_file(&config_path.display().to_string());
     println!("Using config file: {:?}", &config_path);
+}
+
+pub fn ensure_link_upto_date(original: &PathBuf, link: &PathBuf) {
+    match if original.is_dir() {
+        create_dir_all(link).is_ok()
+    } else {
+        File::create(link).is_ok()
+    } {
+        true => {
+            hard_link(original, link).expect(format!("Failed to link to {:?}", &original).as_str())
+        }
+        false => println!("Failed to create link file: {:?}", &link),
+    };
 }
 
 /// It takes a `Config` and returns a `Vec<Mapping>` where each `Mapping` is a source and destination
