@@ -1,6 +1,6 @@
 use capturing_glob::Entry;
 use std::fs::{create_dir_all, hard_link, File, self};
-use std::path::PathBuf;
+use std::path::{PathBuf, Path};
 
 use crate::config::Config;
 use crate::config::Mapping;
@@ -25,6 +25,26 @@ pub fn init_working_dir() {
     }
     add_file(&config_path.display().to_string());
     println!("Using config file: {:?}", &config_path);
+}
+
+/// It takes a vector of mappings, and for each mapping, it ensures that the destination exists as a hardlink to
+/// the source
+/// 
+/// Arguments:
+/// 
+/// * `mappings`: A vector of Mapping structs.
+pub fn link_mappings(mappings: &Vec<Mapping>) {
+    for mapping in mappings {
+        let src = &mapping.source;
+        let dest = &mapping.destination;
+        let original = PathBuf::from(&src);
+        let link = if Path::new(&dest).is_absolute() {
+            PathBuf::from(&dest)
+        } else {
+            get_working_dir().join(&dest)
+        };
+        ensure_link_upto_date(&original, &link);
+    }
 }
 
 /// It creates the parent directory of the link if it doesn't exist, and then creates a hard link from
