@@ -1,5 +1,5 @@
 use capturing_glob::Entry;
-use std::fs::{create_dir_all, hard_link, File};
+use std::fs::{create_dir_all, hard_link, File, self};
 use std::path::PathBuf;
 
 use crate::config::Config;
