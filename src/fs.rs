@@ -1,5 +1,9 @@
 use capturing_glob::{glob_with, Entry, MatchOptions, PatternError};
-use std::{env, path::PathBuf};
+use std::{
+    env,
+    fs::{self, File},
+    path::PathBuf,
+};
 
 /// Setting the options for the globbing.
 const OPTIONS: MatchOptions = MatchOptions {
@@ -28,4 +32,23 @@ pub fn get_matching_files(pattern: &str) -> Result<Vec<Entry>, PatternError> {
 /// A Result<PathBuf>
 pub fn get_working_dir() -> PathBuf {
     env::current_dir().expect("Failed to get current working directory.")
+}
+
+/// `create_file` creates a file at the given path, creating any parent directories if necessary
+///
+/// Arguments:
+///
+/// * `path`: The path to the file to create.
+///
+/// Returns:
+///
+/// A Result<File, std::io::Error>
+pub fn create_file(path: &PathBuf) -> Result<File, std::io::Error> {
+    path.parent()
+        .map(|parent| fs::create_dir_all(parent))
+        .map(|r| match r {
+            Ok(_) => File::create(path),
+            Err(e) => Err(e),
+        })
+        .unwrap_or_else(|| File::create(path))
 }
