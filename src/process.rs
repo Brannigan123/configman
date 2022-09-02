@@ -34,8 +34,7 @@ pub fn init_working_dir() {
 ///
 /// * `mappings`: A vector of Mapping structs.
 pub fn link_mappings(mappings: &Vec<Mapping>) -> Vec<PathBuf> {
-    let mut links = Vec::new();
-    for mapping in mappings {
+    mappings.iter().map(|mapping| {
         let src = &mapping.source;
         let dest = &mapping.destination;
         let original = PathBuf::from(&src);
@@ -45,9 +44,8 @@ pub fn link_mappings(mappings: &Vec<Mapping>) -> Vec<PathBuf> {
             get_working_dir().join(&dest)
         };
         ensure_link_upto_date(&original, &link);
-        links.push(link.to_owned());
-    }
-    links
+        link
+    }).collect::<Vec<PathBuf>>()
 }
 
 /// It creates the parent directory of the link if it doesn't exist, and then creates a hard link from
