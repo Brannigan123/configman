@@ -1,6 +1,6 @@
 use capturing_glob::Entry;
-use std::fs::{create_dir_all, hard_link, self};
-use std::path::{PathBuf, Path};
+use std::fs;
+use std::path::{Path, PathBuf};
 
 use crate::config::Config;
 use crate::config::Mapping;
@@ -29,9 +29,9 @@ pub fn init_working_dir() {
 
 /// It takes a vector of mappings, and for each mapping, it ensures that the destination exists as a hardlink to
 /// the source
-/// 
+///
 /// Arguments:
-/// 
+///
 /// * `mappings`: A vector of Mapping structs.
 pub fn link_mappings(mappings: &Vec<Mapping>) {
     for mapping in mappings {
@@ -49,14 +49,19 @@ pub fn link_mappings(mappings: &Vec<Mapping>) {
 
 /// It creates the parent directory of the link if it doesn't exist, and then creates a hard link from
 /// the original file to the link
-/// 
+///
 /// Arguments:
-/// 
+///
 /// * `original`: The path to the original file.
 /// * `link`: The path to the link to be created.
 pub fn ensure_link_upto_date(original: &PathBuf, link: &PathBuf) {
-    link.parent().map(|p| create_dir_all(p));
-    hard_link(original, link).expect(format!("Failed to link to {:?}", &original).as_str());
+    link.parent().map(|p| fs::create_dir_all(p));
+    if link.is_dir() {
+        fs::remove_dir_all(&link).ok();
+    } else if link.exists() {
+        fs::remove_file(&link).ok();
+    }
+    fs::hard_link(original, link).expect(format!("Failed to link to {:?}", &original).as_str());
 }
 
 /// It takes a `Config` and returns a `Vec<Mapping>` where each `Mapping` is a source and destination
