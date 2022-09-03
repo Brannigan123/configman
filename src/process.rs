@@ -5,7 +5,7 @@ use std::path::{Path, PathBuf};
 use crate::config::Config;
 use crate::config::Mapping;
 use crate::config::SAMPLE_CONFIG_CONTENT;
-use crate::fs::{get_matching_files, get_working_dir};
+use crate::fs::{get_matching_files, get_working_dir, remove_from_fs};
 use crate::git::{add_file, init_git, is_git_repo_root_dir};
 
 /// It checks if the current working directory has a configuration file, if not, it generates one, then
@@ -34,18 +34,21 @@ pub fn init_working_dir() {
 ///
 /// * `mappings`: A vector of Mapping structs.
 pub fn link_mappings(mappings: &Vec<Mapping>) -> Vec<PathBuf> {
-    mappings.iter().map(|mapping| {
-        let src = &mapping.source;
-        let dest = &mapping.destination;
-        let original = PathBuf::from(&src);
-        let link = if Path::new(&dest).is_absolute() {
-            PathBuf::from(&dest)
-        } else {
-            get_working_dir().join(&dest)
-        };
-        ensure_link_upto_date(&original, &link);
-        link
-    }).collect::<Vec<PathBuf>>()
+    mappings
+        .iter()
+        .map(|mapping| {
+            let src = &mapping.source;
+            let dest = &mapping.destination;
+            let original = PathBuf::from(&src);
+            let link = if Path::new(&dest).is_absolute() {
+                PathBuf::from(&dest)
+            } else {
+                get_working_dir().join(&dest)
+            };
+            ensure_link_upto_date(&original, &link);
+            link
+        })
+        .collect::<Vec<PathBuf>>()
 }
 
 /// It creates the parent directory of the link if it doesn't exist, and then creates a hard link from
@@ -57,11 +60,7 @@ pub fn link_mappings(mappings: &Vec<Mapping>) -> Vec<PathBuf> {
 /// * `link`: The path to the link to be created.
 pub fn ensure_link_upto_date(original: &PathBuf, link: &PathBuf) {
     link.parent().map(|p| fs::create_dir_all(p));
-    if link.is_dir() {
-        fs::remove_dir_all(&link).ok();
-    } else if link.exists() {
-        fs::remove_file(&link).ok();
-    }
+    remove_from_fs(link);
     fs::hard_link(original, link).expect(format!("Failed to link to {:?}", &original).as_str());
 }
 
