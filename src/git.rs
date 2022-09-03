@@ -135,3 +135,11 @@ pub fn commit_staged_files(message: &str) {
         println!("There are no staged files. Commit has been aborted.");
     }
 }
+
+/// It fetches the latest commits from the remote repository and overwrites the local repository with
+/// them
+pub fn fetch() {
+    exec_git(vec!["fetch", "origin"]).expect("Failed to fetch from remote git repo");
+    exec_git(vec!["reset", "--hard", "origin/master"])
+        .expect("Overwrite local with remote commits");
+}
