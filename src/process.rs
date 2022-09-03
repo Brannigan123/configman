@@ -6,7 +6,7 @@ use std::path::{Path, PathBuf};
 use crate::config::Config;
 use crate::config::Mapping;
 use crate::config::SAMPLE_CONFIG_CONTENT;
-use crate::fs::{get_matching_files, get_working_dir, remove_from_fs};
+use crate::fs::{get_matching_files, get_working_dir, link_path, remove_from_fs};
 use crate::git::{add_file, init_git, is_git_repo_root_dir};
 
 /// It checks if the current working directory has a configuration file, if not, it generates one, then
@@ -63,7 +63,7 @@ pub fn link_mappings(mappings: &Vec<Mapping>) -> Vec<PathBuf> {
 pub fn ensure_link_upto_date(original: &PathBuf, link: &PathBuf) {
     link.parent().map(|p| fs::create_dir_all(p));
     remove_from_fs(link);
-    fs::hard_link(original, link).expect(format!("Failed to link to {:?}", &original).as_str());
+    link_path(original, link);
     add_file(&link.display().to_string());
 }
 

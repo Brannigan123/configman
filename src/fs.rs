@@ -65,3 +65,18 @@ pub fn remove_from_fs(path: &PathBuf) {
         fs::remove_file(&path).ok();
     }
 }
+
+/// If the original path is a directory, create a symbolic link, otherwise create a hard link
+///
+/// Arguments:
+///
+/// * `original`: The path to the original file or directory.
+/// * `link`: The path to the link to be created.
+pub fn link_path(original: &PathBuf, link: &PathBuf) {
+    if original.is_dir() {
+        std::os::unix::fs::symlink(original, link)
+    } else {
+        fs::hard_link(original, link)
+    }
+    .expect(format!("Failed to link to {:?}", &original).as_str())
+}
