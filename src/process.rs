@@ -1,5 +1,6 @@
 use capturing_glob::Entry;
 use indicatif::ProgressIterator;
+use same_file::is_same_file;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -61,10 +62,51 @@ pub fn link_mappings(mappings: &Vec<Mapping>) -> Vec<PathBuf> {
 /// * `original`: The path to the original file
 /// * `link`: The path to the link to be created
 pub fn ensure_link_upto_date(original: &PathBuf, link: &PathBuf) {
+    if original.exists()
+    /* Helps in ignoring broken links */
+    {
+        if link.exists() {
+            replace_existing_with_link(&original, &link)
+        } else {
+            create_new_link(&original, &link);
+        }
+        add_file(&link.display().to_string());
+    }
+}
+
+/// If the link already exists, and it's not the same file as the original, then remove it and replace
+/// it with a link to the original unless it's inside a symbolic ancestor pointing to folder outside the
+/// working directory
+///
+/// Arguments:
+///
+/// * `original`: The path to the file that you want to link to.
+/// * `link`: The path to the link to be created
+fn replace_existing_with_link(original: &PathBuf, link: &PathBuf) {
+    let same =
+        is_same_file(original.display().to_string(), link.display().to_string()).unwrap_or(false);
+    if !same {
+        if link.canonicalize().unwrap().starts_with(get_working_dir()) {
+            remove_from_fs(&link);
+            link_path(&original, &link);
+        } else {
+            panic!(
+                "Failed to link {:?} as {:?}, since a different file already exists there",
+                &original, &link
+            );
+        }
+    }
+}
+
+/// It creates a new link at the given path
+///
+/// Arguments:
+///
+/// * `original`: The path to the original file.
+/// * `link`: The path to the new link
+fn create_new_link(original: &PathBuf, link: &PathBuf) {
     link.parent().map(|p| fs::create_dir_all(p));
-    remove_from_fs(link);
-    link_path(original, link);
-    add_file(&link.display().to_string());
+    link_path(&original, &link);
 }
 
 /// It takes a `Config` and returns a `Vec<Mapping>` where each `Mapping` is a source and destination
