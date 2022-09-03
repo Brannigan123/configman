@@ -34,6 +34,21 @@ pub fn get_working_dir() -> PathBuf {
     env::current_dir().expect("Failed to get current working directory.")
 }
 
+/// It removes everything from the working directory except for the `config.cmf` file and the `.git`
+/// directory
+pub fn clean_working_dir() {
+    let wdir = get_working_dir();
+    let skip = vec![wdir.join("config.cmf"), wdir.join(".git")];
+    for entry in wdir.read_dir().expect("Failed read from working directory") {
+        if let Ok(dir_entry) = entry {
+            let entry_path = dir_entry.path();
+            if !skip.contains(&entry_path) {
+                remove_from_fs(&entry_path);
+            }
+        }
+    }
+}
+
 /// `create_file` creates a file at the given path, creating any parent directories if necessary
 ///
 /// Arguments:
@@ -54,9 +69,9 @@ pub fn create_file(path: &PathBuf) -> Result<File, std::io::Error> {
 }
 
 /// It removes a file or directory from the filesystem
-/// 
+///
 /// Arguments:
-/// 
+///
 /// * `path`: The path to the file or directory to remove.
 pub fn remove_from_fs(path: &PathBuf) {
     if path.is_dir() {
