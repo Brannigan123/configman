@@ -15,33 +15,6 @@ pub struct GitFileStatus {
 }
 
 impl GitFileStatus {
-    /// `is_modified` returns true if the working tree status is modified is `M`
-    ///
-    /// Returns:
-    ///
-    /// A boolean value.
-    pub const fn is_modified(&self) -> bool {
-        self.working_tree_status == 'M'
-    }
-
-    /// `is_staged` returns true if the index status is `M`
-    ///
-    /// Returns:
-    ///
-    /// A boolean value.
-    pub const fn is_staged(&self) -> bool {
-        self.index_status == 'M'
-    }
-
-    /// `is_upto_date` returns true if the index and working tree are both up to date
-    ///
-    /// Returns:
-    ///
-    /// A boolean value.
-    pub const fn is_upto_date(&self) -> bool {
-        self.index_status == ' ' && self.working_tree_status == ' '
-    }
-
     /// `is_untracked` returns true if the index status and working tree status are both `?`
     ///
     /// Returns:
@@ -96,9 +69,9 @@ pub fn init_git() {
 }
 
 /// It adds a file to the index if it's not already added
-/// 
+///
 /// Arguments:
-/// 
+///
 /// * `path`: &str
 pub fn add_file(path: &str) {
     if get_file_status(&path).is_untracked() {

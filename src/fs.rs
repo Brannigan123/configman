@@ -1,10 +1,6 @@
 use crate::git::get_file_status;
 use capturing_glob::{glob_with, Entry, MatchOptions, PatternError};
-use std::{
-    env,
-    fs::{self, File},
-    path::PathBuf,
-};
+use std::{env, fs, path::PathBuf};
 
 /// Setting the options for the globbing.
 const OPTIONS: MatchOptions = MatchOptions {
@@ -50,25 +46,6 @@ pub fn clean_working_dir() {
             }
         }
     }
-}
-
-/// `create_file` creates a file at the given path, creating any parent directories if necessary
-///
-/// Arguments:
-///
-/// * `path`: The path to the file to create.
-///
-/// Returns:
-///
-/// A Result<File, std::io::Error>
-pub fn create_file(path: &PathBuf) -> Result<File, std::io::Error> {
-    path.parent()
-        .map(|parent| fs::create_dir_all(parent))
-        .map(|r| match r {
-            Ok(_) => File::create(path),
-            Err(e) => Err(e),
-        })
-        .unwrap_or_else(|| File::create(path))
 }
 
 /// It removes a file or directory from the filesystem
