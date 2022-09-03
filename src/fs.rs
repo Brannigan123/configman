@@ -78,5 +78,5 @@ pub fn link_path(original: &PathBuf, link: &PathBuf) {
     } else {
         fs::hard_link(original, link)
     }
-    .expect(format!("Failed to link to {:?}", &original).as_str())
+    .expect(format!("Failed to link to {:?} as {:?}", &original, &link).as_str())
 }
