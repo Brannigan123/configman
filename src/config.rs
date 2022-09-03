@@ -2,6 +2,8 @@ use std::fmt;
 use std::fs::File;
 use std::io::{prelude::*, BufReader, Error};
 
+use indicatif::{ProgressBar, ProgressIterator};
+
 /// `Config` is a struct that contains a vector of `Mapping`s.
 ///
 /// Properties:
@@ -54,9 +56,13 @@ pub fn load_config(path: &str) -> Result<Config, Error> {
         .map(|f| BufReader::new(f))
         .map(|br| br.lines())
         .map(|ls| {
-            ls.map(|l| l.unwrap())
-                .filter(considered_mapping)
-                .map(convert_line_to_mapping)
+            ls.progress_with(
+                ProgressBar::new_spinner()
+                    .with_message(format!("Loading config file: {:?}", &path)),
+            )
+            .map(|l| l.unwrap())
+            .filter(considered_mapping)
+            .map(convert_line_to_mapping)
         })
         .map(|m| m.collect::<Vec<Mapping>>())
         .map(|m| Config { mappings: m })

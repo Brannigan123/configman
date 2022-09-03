@@ -1,4 +1,5 @@
 use capturing_glob::Entry;
+use indicatif::ProgressIterator;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -24,7 +25,6 @@ pub fn init_working_dir() {
         init_git();
     }
     add_file(&config_path.display().to_string());
-    println!("Using config file: {:?}", &config_path);
 }
 
 /// It takes a vector of mappings, and for each mapping, it ensures that the destination exists as a hardlink to
@@ -36,6 +36,8 @@ pub fn init_working_dir() {
 pub fn link_mappings(mappings: &Vec<Mapping>) -> Vec<PathBuf> {
     mappings
         .iter()
+        .progress()
+        .with_message("Linking files")
         .map(|mapping| {
             let src = &mapping.source;
             let dest = &mapping.destination;
@@ -53,9 +55,9 @@ pub fn link_mappings(mappings: &Vec<Mapping>) -> Vec<PathBuf> {
 
 /// It creates a hard link from the original file to the link file, and adds the link file to the list
 /// of files to be tracked
-/// 
+///
 /// Arguments:
-/// 
+///
 /// * `original`: The path to the original file
 /// * `link`: The path to the link to be created
 pub fn ensure_link_upto_date(original: &PathBuf, link: &PathBuf) {
@@ -77,7 +79,12 @@ pub fn ensure_link_upto_date(original: &PathBuf, link: &PathBuf) {
 /// A vector of Mapping structs.
 pub fn get_found_mappings(config: &Config) -> Vec<Mapping> {
     let mut found_mappings = Vec::new();
-    for mapping in &config.mappings {
+    for mapping in config
+        .mappings
+        .iter()
+        .progress()
+        .with_message("Finding matching files")
+    {
         for matched in &get_matching_files(&mapping.source).expect("Failed match files") {
             let source = matched.path().display().to_string();
             let destination = substitute_group_values(mapping, matched);

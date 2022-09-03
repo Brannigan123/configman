@@ -1,5 +1,6 @@
 use crate::git::get_file_status;
 use capturing_glob::{glob_with, Entry, MatchOptions, PatternError};
+use indicatif::{ProgressBar, ProgressIterator};
 use std::{env, fs, path::PathBuf};
 
 /// Setting the options for the globbing.
@@ -36,7 +37,11 @@ pub fn get_working_dir() -> PathBuf {
 pub fn clean_working_dir() {
     let wdir = get_working_dir();
     let skip = vec![wdir.join("config.cmf"), wdir.join(".git")];
-    for entry in wdir.read_dir().expect("Failed read from working directory") {
+    for entry in wdir
+        .read_dir()
+        .expect("Failed read from working directory")
+        .progress_with(ProgressBar::new_spinner().with_message("Cleaning working directory"))
+    {
         if let Ok(dir_entry) = entry {
             let entry_path = dir_entry.path();
             let ignored = skip.contains(&entry_path)
