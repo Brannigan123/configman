@@ -1,4 +1,4 @@
-use crate::git::get_file_status;
+use crate::git::{get_file_status, rm_file};
 use capturing_glob::{glob_with, Entry, MatchOptions, PatternError};
 use indicatif::{ProgressBar, ProgressIterator};
 use std::{env, fs, path::PathBuf};
@@ -48,6 +48,7 @@ pub fn clean_working_dir() {
                 || get_file_status(&entry_path.display().to_string()).is_ignored();
             if !ignored {
                 remove_from_fs(&entry_path);
+                rm_file(&entry_path.display().to_string());
             }
         }
     }

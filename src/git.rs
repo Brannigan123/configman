@@ -79,6 +79,15 @@ pub fn add_file(path: &str) {
     }
 }
 
+/// It removes a file from the index
+///
+/// Arguments:
+///
+/// * `path`: The path to the file to be removed.
+pub fn rm_file(path: &str) {
+    exec_git(vec!["rm", &path]).expect(format!("Failed to unindex {}", &path).as_str());
+}
+
 /// It runs `git status -s <path>` and parses the output
 ///
 /// Arguments:
