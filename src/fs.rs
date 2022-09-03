@@ -1,3 +1,4 @@
+use crate::git::get_file_status;
 use capturing_glob::{glob_with, Entry, MatchOptions, PatternError};
 use std::{
     env,
@@ -34,15 +35,17 @@ pub fn get_working_dir() -> PathBuf {
     env::current_dir().expect("Failed to get current working directory.")
 }
 
-/// It removes everything from the working directory except for the `config.cmf` file and the `.git`
-/// directory
+/// It removes all files and directories from the working directory except for the `config.cmf` file,
+/// the `.git` directory and any files ignored by git
 pub fn clean_working_dir() {
     let wdir = get_working_dir();
     let skip = vec![wdir.join("config.cmf"), wdir.join(".git")];
     for entry in wdir.read_dir().expect("Failed read from working directory") {
         if let Ok(dir_entry) = entry {
             let entry_path = dir_entry.path();
-            if !skip.contains(&entry_path) {
+            let ignored = skip.contains(&entry_path)
+                || get_file_status(&entry_path.display().to_string()).is_ignored();
+            if !ignored {
                 remove_from_fs(&entry_path);
             }
         }
