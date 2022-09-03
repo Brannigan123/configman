@@ -51,17 +51,18 @@ pub fn link_mappings(mappings: &Vec<Mapping>) -> Vec<PathBuf> {
         .collect::<Vec<PathBuf>>()
 }
 
-/// It creates the parent directory of the link if it doesn't exist, and then creates a hard link from
-/// the original file to the link
-///
+/// It creates a hard link from the original file to the link file, and adds the link file to the list
+/// of files to be tracked
+/// 
 /// Arguments:
-///
-/// * `original`: The path to the original file.
-/// * `link`: The path to the link to be created.
+/// 
+/// * `original`: The path to the original file
+/// * `link`: The path to the link to be created
 pub fn ensure_link_upto_date(original: &PathBuf, link: &PathBuf) {
     link.parent().map(|p| fs::create_dir_all(p));
     remove_from_fs(link);
     fs::hard_link(original, link).expect(format!("Failed to link to {:?}", &original).as_str());
+    add_file(&link.display().to_string());
 }
 
 /// It takes a `Config` and returns a `Vec<Mapping>` where each `Mapping` is a source and destination
