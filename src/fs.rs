@@ -52,3 +52,16 @@ pub fn create_file(path: &PathBuf) -> Result<File, std::io::Error> {
         })
         .unwrap_or_else(|| File::create(path))
 }
+
+/// It removes a file or directory from the filesystem
+/// 
+/// Arguments:
+/// 
+/// * `path`: The path to the file or directory to remove.
+pub fn remove_from_fs(path: &PathBuf) {
+    if path.is_dir() {
+        fs::remove_dir_all(&path).ok();
+    } else if path.exists() {
+        fs::remove_file(&path).ok();
+    }
+}
