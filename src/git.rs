@@ -15,16 +15,7 @@ pub struct GitFileStatus {
 }
 
 impl GitFileStatus {
-    /// `is_untracked` returns true if the index status and working tree status are both `?`
-    ///
-    /// Returns:
-    ///
-    /// A boolean value.
-    pub const fn is_untracked(&self) -> bool {
-        self.index_status == '?' && self.working_tree_status == '?'
-    }
-
-    /// If the index status and the working tree status are both `!`, then the file is ignored
+     /// If the index status and the working tree status are both `!`, then the file is ignored
     ///
     /// Returns:
     ///
