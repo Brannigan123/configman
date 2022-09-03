@@ -74,9 +74,7 @@ pub fn init_git() {
 ///
 /// * `path`: &str
 pub fn add_file(path: &str) {
-    if get_file_status(&path).is_untracked() {
-        exec_git(vec!["add", &path]).expect(format!("Failed to index {}", &path).as_str());
-    }
+    exec_git(vec!["add", &path]).expect(format!("Failed to index {}", &path).as_str());
 }
 
 /// It removes a file from the index
