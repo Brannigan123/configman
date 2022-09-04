@@ -109,18 +109,17 @@ pub fn get_file_status(path: &str) -> GitFileStatus {
         .expect(format!("Failed to get git status: {}", path).as_str())
 }
 
-/// It runs `git status -s` and returns true if any of the lines start with `M`
-///
+/// It runs `git status` and checks if the output contains the string `Changes to be committed:`
+/// 
 /// Returns:
-///
+/// 
 /// A boolean value.
 pub fn is_any_file_staged() -> bool {
-    exec_git(vec!["status", "-s"])
+    exec_git(vec!["status"])
         .map(|output| {
             std::str::from_utf8(&output.stdout)
                 .unwrap_or("")
-                .lines()
-                .any(|l| l.starts_with("M"))
+                .contains("Changes to be committed:")
         })
         .expect("Failed to determine if files have been staged")
 }
