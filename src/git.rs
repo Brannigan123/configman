@@ -64,8 +64,10 @@ pub fn init_git() {
 /// Arguments:
 ///
 /// * `path`: &str
-pub fn add_file(path: &str) {
-    exec_git(vec!["add", &path]).expect(format!("Failed to index {}", &path).as_str());
+pub fn add_file(paths: &Vec<String>) {
+    let mut arg = vec!["add"];
+    arg.extend(paths.iter().map(|s| s.as_str()));
+    exec_git(arg).expect(format!("Failed to index {:?}", &paths).as_str());
 }
 
 /// It takes a path as a string, and stages only modified and deleted files.

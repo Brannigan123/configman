@@ -25,9 +25,17 @@ pub fn init_working_dir() {
     if !is_git_repo_root_dir() {
         init_git();
     }
-    add_file(&config_path.display().to_string());
+    add_file(&vec![config_path.display().to_string()]);
 }
 
+pub fn track_links(paths: &Vec<PathBuf>) {
+    add_file(
+        &paths
+            .iter()
+            .map(|p| p.display().to_string())
+            .collect::<Vec<String>>(),
+    );
+}
 /// It takes a vector of mappings, and for each mapping, it ensures that the destination exists as a hardlink to
 /// the source
 ///
@@ -36,7 +44,7 @@ pub fn init_working_dir() {
 /// * `mappings`: A vector of Mapping structs.
 ///
 /// Returns:
-/// 
+///
 /// A vector of PathBufs
 pub fn link_mappings(mappings: &Vec<Mapping>) -> Vec<PathBuf> {
     let mut linked = Vec::new();
@@ -58,14 +66,14 @@ pub fn link_mappings(mappings: &Vec<Mapping>) -> Vec<PathBuf> {
 
 /// If the original file exists, then if the link exists, replace it with a new link, else create a new
 /// link
-/// 
+///
 /// Arguments:
-/// 
+///
 /// * `original`: The original file that you want to link to.
 /// * `link`: The path to the link to be created
-/// 
+///
 /// Returns:
-/// 
+///
 /// A boolean value. whether it created a new link
 pub fn ensure_link_upto_date(original: &PathBuf, link: &PathBuf) -> bool {
     if original.exists()
@@ -76,7 +84,6 @@ pub fn ensure_link_upto_date(original: &PathBuf, link: &PathBuf) -> bool {
         } else {
             create_new_link(&original, &link);
         }
-        add_file(&link.display().to_string());
         return true;
     }
     return false;

@@ -5,7 +5,7 @@ use std::fmt;
 use crate::config::load_config;
 use crate::fs::clean_working_dir;
 use crate::git;
-use crate::process::{get_found_mappings, init_working_dir, link_mappings};
+use crate::process::{get_found_mappings, init_working_dir, link_mappings, track_links};
 
 /// Creating an enum called State with the values ActionSelection, Initialize, Clean, Refresh, Commit,
 /// Fetch, Push, and Exit.
@@ -82,7 +82,8 @@ fn try_refresh() {
     clean_working_dir();
     let config = load_config("config.cmf")
         .expect("Failed to load config file. Try initializing first.");
-    link_mappings(&get_found_mappings(&config));
+    let links = link_mappings(&get_found_mappings(&config));
+    track_links(&links);
 }
 
 /// It prompts the user for a commit message, and if the user enters a message, it commits the staged
