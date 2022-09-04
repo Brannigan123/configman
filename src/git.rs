@@ -68,6 +68,11 @@ pub fn add_file(path: &str) {
     exec_git(vec!["add", &path]).expect(format!("Failed to index {}", &path).as_str());
 }
 
+/// It takes a path as a string, and stages only modified and deleted files.
+pub fn stage_files() {
+    exec_git(vec!["add", "-u"]).expect("Failed to stage changes");
+}
+
 /// It removes a file from the index
 ///
 /// Arguments:
@@ -120,9 +125,9 @@ pub fn is_any_file_staged() -> bool {
 
 /// It runs `git status -s` and checks if any of the lines start with `AA`, `AU`, `DD`, `DU`, `UA`,
 /// `UD`, or `UU`
-/// 
+///
 /// Returns:
-/// 
+///
 /// A boolean value
 pub fn is_any_file_conflicting() -> bool {
     exec_git(vec!["status", "-s"])
@@ -146,6 +151,7 @@ pub fn is_any_file_conflicting() -> bool {
 ///
 /// * `message`: &str
 pub fn commit_staged_files(message: &str) {
+    stage_files();
     if is_any_file_staged() {
         exec_git(vec!["commit", "-m", &message])
             .expect(format!("Failed to commit: {}", &message).as_str());
