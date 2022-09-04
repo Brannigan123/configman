@@ -36,11 +36,14 @@ pub fn get_working_dir() -> PathBuf {
 /// the `.git` directory and any files ignored by git
 pub fn clean_working_dir() {
     let wdir = get_working_dir();
-    let skip = vec![wdir.join("config.cmf"), wdir.join(".git")];
-    for entry in wdir
-        .read_dir()
-        .expect("Failed read from working directory")
-        .progress_with(ProgressBar::new_spinner().with_message("Cleaning working directory"))
+    let skip = vec![
+        wdir.join("config.cmf"),
+        wdir.join(".git"),
+        wdir.join("LICENSE"),
+    ];
+    let rdir = wdir.read_dir().expect("Failed read from working directory");
+    for entry in
+        rdir.progress_with(ProgressBar::new_spinner().with_message("Cleaning working directory"))
     {
         if let Ok(dir_entry) = entry {
             let entry_path = dir_entry.path();

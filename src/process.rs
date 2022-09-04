@@ -1,5 +1,5 @@
 use capturing_glob::Entry;
-use indicatif::ProgressIterator;
+use indicatif::{ProgressIterator, ProgressStyle};
 use same_file::is_same_file;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -30,9 +30,9 @@ pub fn init_working_dir() {
 
 /// It takes a vector of paths, converts them to strings, and then sends them to the `add_file` function
 /// in batches of 16
-/// 
+///
 /// Arguments:
-/// 
+///
 /// * `paths`: A vector of PathBufs that we want to index.
 pub fn track_links(paths: &Vec<PathBuf>) {
     let path_strs = paths
@@ -41,8 +41,11 @@ pub fn track_links(paths: &Vec<PathBuf>) {
         .collect::<Vec<String>>();
     for batch in path_strs
         .chunks(16)
-        .progress()
-        .with_message("Indexing files")
+        .progress_with_style(
+            ProgressStyle::with_template("[{percent}%]{prefix} {wide_bar} eta: {eta_precise}")
+                .unwrap(),
+        )
+        .with_prefix("Indexing files")
     {
         add_file(&batch.to_vec());
     }
@@ -60,7 +63,14 @@ pub fn track_links(paths: &Vec<PathBuf>) {
 /// A vector of PathBufs
 pub fn link_mappings(mappings: &Vec<Mapping>) -> Vec<PathBuf> {
     let mut linked = Vec::new();
-    for mapping in mappings.iter().progress().with_message("Linking files") {
+    for mapping in mappings
+        .iter()
+        .progress_with_style(
+            ProgressStyle::with_template("[{percent}%]{prefix} {wide_bar} eta: {eta_precise}")
+                .unwrap(),
+        )
+        .with_prefix("Linking files")
+    {
         let src = &mapping.source;
         let dest = &mapping.destination;
         let original = PathBuf::from(&src);
@@ -151,8 +161,11 @@ pub fn get_found_mappings(config: &Config) -> Vec<Mapping> {
     for mapping in config
         .mappings
         .iter()
-        .progress()
-        .with_message("Finding matching files")
+        .progress_with_style(
+            ProgressStyle::with_template("[{percent}%]{prefix} {wide_bar} eta: {eta_precise}")
+                .unwrap(),
+        )
+        .with_prefix("Finding matching files")
     {
         for matched in &get_matching_files(&mapping.source).expect("Failed match files") {
             if !matched.path().is_dir() {
