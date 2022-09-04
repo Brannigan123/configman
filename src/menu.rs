@@ -1,5 +1,5 @@
 use inquire::formatter::OptionFormatter;
-use inquire::{Select, Text};
+use inquire::{Confirm, Select, Text};
 use std::fmt;
 
 use crate::config::load_config;
@@ -76,6 +76,22 @@ fn get_next_action() -> State {
         .prompt()
         .expect("Failed to capture selection(s)")
 }
+/// Pushes chages to remote repo.
+/// If there are any files that have been updated both locally and remotely, ask the user if they want
+/// to force push the local changes to the remote repo
+fn try_push() {
+    if git::is_any_file_conflicting() {
+        let force = Confirm::new("Some files have been updated both locally and remotely. Replace remote repo with local changes?")
+            .with_default(false)
+            .with_help_message("This will ensure your remote copy matches the local setup.")
+            .prompt();
+        if let Ok(true) = force {
+            git::force_push();
+        }
+    } else {
+        git::push();
+    }
+}
 
 /// It takes a `Config` and a current `State` executes it and returns the next `State`
 ///
@@ -101,7 +117,7 @@ pub fn run_once(state: State) -> State {
             Err(e) => println!("Failed to get commit message: {:?}", e),
         },
         State::Fetch => git::fetch(),
-        State::Push => todo!(), // git::push(),
+        State::Push => try_push(),
         State::ActionSelection => return get_next_action(),
         State::Exit => return State::Exit,
     }

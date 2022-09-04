@@ -15,7 +15,7 @@ pub struct GitFileStatus {
 }
 
 impl GitFileStatus {
-     /// If the index status and the working tree status are both `!`, then the file is ignored
+    /// If the index status and the working tree status are both `!`, then the file is ignored
     ///
     /// Returns:
     ///
@@ -118,6 +118,28 @@ pub fn is_any_file_staged() -> bool {
         .expect("Failed to determine if files have been staged")
 }
 
+/// It runs `git status -s` and checks if any of the lines start with `AA`, `AU`, `DD`, `DU`, `UA`,
+/// `UD`, or `UU`
+/// 
+/// Returns:
+/// 
+/// A boolean value
+pub fn is_any_file_conflicting() -> bool {
+    exec_git(vec!["status", "-s"])
+        .map(|output| {
+            std::str::from_utf8(&output.stdout)
+                .unwrap_or("")
+                .lines()
+                .any(|l| {
+                    vec!["AA", "AU", "DD", "DU", "UA", "UD", "UU"]
+                        .binary_search(&&l[..2])
+                        .is_ok()
+                })
+            // UU AA AU UA DU UD DD
+        })
+        .expect("Failed to determine if files are conflicting with remote repo")
+}
+
 /// It commits all staged files with the given message
 ///
 /// Arguments:
@@ -138,4 +160,14 @@ pub fn fetch() {
     exec_git(vec!["fetch", "origin"]).expect("Failed to fetch from remote git repo");
     exec_git(vec!["reset", "--hard", "origin/master"])
         .expect("Overwrite local with remote commits");
+}
+
+/// It executes the git push command
+pub fn push() {
+    exec_git(vec!["push"]).expect("Failed to push to remote git repo");
+}
+
+/// It executes the `git push` command with the argument `--force`
+pub fn force_push() {
+    exec_git(vec!["push", "--force"]).expect("Failed to force push to remote git repo");
 }
