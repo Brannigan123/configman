@@ -89,7 +89,7 @@ fn try_refresh() {
 /// It prompts the user for a commit message, and if the user enters a message, it commits the staged
 /// files with that message
 fn try_commit() {
-    match Text::new("What is your name?").prompt() {
+    match Text::new("Write your commit message here: ").prompt() {
         Ok(message) => git::commit_staged_files(message.as_str()),
         Err(e) => println!("Failed to get commit message: {:?}", e),
     }
