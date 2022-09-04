@@ -28,14 +28,26 @@ pub fn init_working_dir() {
     add_file(&vec![config_path.display().to_string()]);
 }
 
+/// It takes a vector of paths, converts them to strings, and then sends them to the `add_file` function
+/// in batches of 16
+/// 
+/// Arguments:
+/// 
+/// * `paths`: A vector of PathBufs that we want to index.
 pub fn track_links(paths: &Vec<PathBuf>) {
-    add_file(
-        &paths
-            .iter()
-            .map(|p| p.display().to_string())
-            .collect::<Vec<String>>(),
-    );
+    let path_strs = paths
+        .iter()
+        .map(|p| p.display().to_string())
+        .collect::<Vec<String>>();
+    for batch in path_strs
+        .chunks(16)
+        .progress()
+        .with_message("Indexing files")
+    {
+        add_file(&batch.to_vec());
+    }
 }
+
 /// It takes a vector of mappings, and for each mapping, it ensures that the destination exists as a hardlink to
 /// the source
 ///
