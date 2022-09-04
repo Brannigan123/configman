@@ -34,34 +34,40 @@ pub fn init_working_dir() {
 /// Arguments:
 ///
 /// * `mappings`: A vector of Mapping structs.
+///
+/// Returns:
+/// 
+/// A vector of PathBufs
 pub fn link_mappings(mappings: &Vec<Mapping>) -> Vec<PathBuf> {
-    mappings
-        .iter()
-        .progress()
-        .with_message("Linking files")
-        .map(|mapping| {
-            let src = &mapping.source;
-            let dest = &mapping.destination;
-            let original = PathBuf::from(&src);
-            let link = if Path::new(&dest).is_absolute() {
-                PathBuf::from(&dest)
-            } else {
-                get_working_dir().join(&dest)
-            };
-            ensure_link_upto_date(&original, &link);
-            link
-        })
-        .collect::<Vec<PathBuf>>()
+    let mut linked = Vec::new();
+    for mapping in mappings.iter().progress().with_message("Linking files") {
+        let src = &mapping.source;
+        let dest = &mapping.destination;
+        let original = PathBuf::from(&src);
+        let link = if Path::new(&dest).is_absolute() {
+            PathBuf::from(&dest)
+        } else {
+            get_working_dir().join(&dest)
+        };
+        if ensure_link_upto_date(&original, &link) {
+            linked.push(link);
+        }
+    }
+    return linked;
 }
 
-/// It creates a hard link from the original file to the link file, and adds the link file to the list
-/// of files to be tracked
-///
+/// If the original file exists, then if the link exists, replace it with a new link, else create a new
+/// link
+/// 
 /// Arguments:
-///
-/// * `original`: The path to the original file
+/// 
+/// * `original`: The original file that you want to link to.
 /// * `link`: The path to the link to be created
-pub fn ensure_link_upto_date(original: &PathBuf, link: &PathBuf) {
+/// 
+/// Returns:
+/// 
+/// A boolean value. whether it created a new link
+pub fn ensure_link_upto_date(original: &PathBuf, link: &PathBuf) -> bool {
     if original.exists()
     /* Helps in ignoring broken links */
     {
@@ -71,7 +77,9 @@ pub fn ensure_link_upto_date(original: &PathBuf, link: &PathBuf) {
             create_new_link(&original, &link);
         }
         add_file(&link.display().to_string());
+        return true;
     }
+    return false;
 }
 
 /// If the link already exists, and it's not the same file as the original, then remove it and replace
