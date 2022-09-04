@@ -128,12 +128,14 @@ pub fn get_found_mappings(config: &Config) -> Vec<Mapping> {
         .with_message("Finding matching files")
     {
         for matched in &get_matching_files(&mapping.source).expect("Failed match files") {
-            let source = matched.path().display().to_string();
-            let destination = substitute_group_values(mapping, matched);
-            found_mappings.push(Mapping {
-                source,
-                destination,
-            });
+            if !matched.path().is_dir() {
+                let source = matched.path().display().to_string();
+                let destination = substitute_group_values(mapping, matched);
+                found_mappings.push(Mapping {
+                    source,
+                    destination,
+                });
+            }
         }
     }
     return found_mappings;
