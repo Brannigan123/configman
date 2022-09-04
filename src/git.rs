@@ -1,5 +1,5 @@
-use std::io::Error;
-use std::process::{Command, Output};
+use std::io::{BufRead, BufReader, Error, ErrorKind};
+use std::process::{Command, Output, Stdio};
 
 /// `GitFileStatus` is a struct that contains two fields, `index_status` and `working_tree_status`, both
 /// of which are characters.
@@ -38,6 +38,31 @@ pub fn exec_git(arg: Vec<&str>) -> Result<Output, Error> {
     Command::new("git").args(arg).output()
 }
 
+/// It executes the `git` command, captures its standard output, and prints each line of the output to
+/// the console
+///
+/// Arguments:
+///
+/// * `arg`: Vec<&str> - This is the vector of arguments that we want to pass to the git command.
+///
+/// Returns:
+///
+/// Result<(), Error>
+pub fn exec_git_with_logs(arg: Vec<&str>) -> Result<(), Error> {
+    let stdout = Command::new("git")
+        .args(arg)
+        .stdout(Stdio::piped())
+        .spawn()?
+        .stdout
+        .ok_or_else(|| Error::new(ErrorKind::Other, "Could not capture standard output."))?;
+
+    BufReader::new(stdout)
+        .lines()
+        .filter_map(|line| line.ok())
+        .for_each(|line| println!("{}", line));
+    Ok(())
+}
+
 /// If the output of `git rev-parse --git-dir` is `.git`, then we're in a git repo
 ///
 /// Returns:
@@ -56,7 +81,7 @@ pub fn is_git_repo_root_dir() -> bool {
 
 /// It executes the `git init` command
 pub fn init_git() {
-    exec_git(vec!["init"]).expect("Failed to initialize git repo here");
+    exec_git_with_logs(vec!["init"]).expect("Failed to initialize git repo here");
 }
 
 /// It adds a file to the index if it's not already added
@@ -72,7 +97,7 @@ pub fn add_file(paths: &Vec<String>) {
 
 /// It takes a path as a string, and stages only modified and deleted files.
 pub fn stage_files() {
-    exec_git(vec!["add", "-u"]).expect("Failed to stage changes");
+    exec_git_with_logs(vec!["add", "-u"]).expect("Failed to stage changes");
 }
 
 /// It removes a file from the index
@@ -110,9 +135,9 @@ pub fn get_file_status(path: &str) -> GitFileStatus {
 }
 
 /// It runs `git status` and checks if the output contains the string `Changes to be committed:`
-/// 
+///
 /// Returns:
-/// 
+///
 /// A boolean value.
 pub fn is_any_file_staged() -> bool {
     exec_git(vec!["status"])
@@ -154,7 +179,7 @@ pub fn is_any_file_conflicting() -> bool {
 pub fn commit_staged_files(message: &str) {
     stage_files();
     if is_any_file_staged() {
-        exec_git(vec!["commit", "-m", &message])
+        exec_git_with_logs(vec!["commit", "-m", &message])
             .expect(format!("Failed to commit: {}", &message).as_str());
     } else {
         println!("There are no staged files. Commit has been aborted.");
@@ -164,17 +189,17 @@ pub fn commit_staged_files(message: &str) {
 /// It fetches the latest commits from the remote repository and overwrites the local repository with
 /// them
 pub fn fetch() {
-    exec_git(vec!["fetch", "origin"]).expect("Failed to fetch from remote git repo");
-    exec_git(vec!["reset", "--hard", "origin/master"])
+    exec_git_with_logs(vec!["fetch", "origin"]).expect("Failed to fetch from remote git repo");
+    exec_git_with_logs(vec!["reset", "--hard", "origin/master"])
         .expect("Overwrite local with remote commits");
 }
 
 /// It executes the git push command
 pub fn push() {
-    exec_git(vec!["push"]).expect("Failed to push to remote git repo");
+    exec_git_with_logs(vec!["push"]).expect("Failed to push to remote git repo");
 }
 
 /// It executes the `git push` command with the argument `--force`
 pub fn force_push() {
-    exec_git(vec!["push", "--force"]).expect("Failed to force push to remote git repo");
+    exec_git_with_logs(vec!["push", "--force"]).expect("Failed to force push to remote git repo");
 }
