@@ -76,6 +76,24 @@ fn get_next_action() -> State {
         .prompt()
         .expect("Failed to capture selection(s)")
 }
+
+/// It loads the config file, finds all the mappings, and links them to working directory
+fn try_refresh() {
+    clean_working_dir();
+    let config = load_config("config.cmf")
+        .expect("Failed to load config file. Try initializing first.");
+    link_mappings(&get_found_mappings(&config));
+}
+
+/// It prompts the user for a commit message, and if the user enters a message, it commits the staged
+/// files with that message
+fn try_commit() {
+    match Text::new("What is your name?").prompt() {
+        Ok(message) => git::commit_staged_files(message.as_str()),
+        Err(e) => println!("Failed to get commit message: {:?}", e),
+    }
+}
+
 /// Pushes chages to remote repo.
 /// If there are any files that have been updated both locally and remotely, ask the user if they want
 /// to force push the local changes to the remote repo
@@ -106,16 +124,8 @@ pub fn run_once(state: State) -> State {
     match state {
         State::Initialize => init_working_dir(),
         State::Clean => clean_working_dir(),
-        State::Refresh => {
-            clean_working_dir();
-            let config = load_config("config.cmf")
-                .expect("Failed to load config file. Try initializing first.");
-            link_mappings(&get_found_mappings(&config));
-        }
-        State::Commit => match Text::new("What is your name?").prompt() {
-            Ok(message) => git::commit_staged_files(message.as_str()),
-            Err(e) => println!("Failed to get commit message: {:?}", e),
-        },
+        State::Refresh => try_refresh(),
+        State::Commit => try_commit(),
         State::Fetch => git::fetch(),
         State::Push => try_push(),
         State::ActionSelection => return get_next_action(),
